@@ -1,0 +1,16 @@
+main {
+  display: flex;
+
+  justify-content: center;
+}
+
+div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-direction: column;
+}
+
+h1 {
+  padding: 25px;
+}
