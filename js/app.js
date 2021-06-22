@@ -9,13 +9,15 @@ let imgMiddleElem = document.getElementById('middle-img')
 let h1RightElem = document.getElementById('right-h1');
 let imgRightElem = document.getElementById('right-img')
 let resultsUlElem = document.getElementById('results');
+let resultsButtonElem = document.getElementById('results-button')
 let voteCounter = 0;
 let leftProduct = null;
 let middleProduct = null;
 let rightProduct = null;
 
-function Product(name, image) {
+function Product(name, identifier, image) {
 this.name = name;
+this.productIdentifier = identifier;
 this.image = image;
 this.viewedCounter = 0;
 this.votes = 0;
@@ -24,28 +26,28 @@ Product.allProducts.push(this);
 }
 
 function pickThreeProducts() {
-let leftProductIndex = Math.floor((Math.random() * Product.allProducts.length));
-leftProduct = Product.allProducts[leftProductIndex];
+  let leftProductIndex = Math.floor((Math.random() * Product.allProducts.length));
+  leftProduct = Product.allProducts[leftProductIndex];
 
-let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
-middleProduct = Product.allProducts[middleProductIndex];
-
-while (middleProduct === null || middleProductIndex === leftProductIndex) {
   let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   middleProduct = Product.allProducts[middleProductIndex];
-}
 
-let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
-rightProduct = Product.allProducts[rightProductIndex];
+  while (middleProduct === null || middleProduct === leftProduct) {
+    let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
+    middleProduct = Product.allProducts[middleProductIndex];
+  }
 
-while (rightProduct === null || rightProductIndex === middleProductIndex || rightProductIndex === leftProductIndex) {
   let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   rightProduct = Product.allProducts[rightProductIndex];
-}
 
-leftProduct.renderProduct(h1LeftElem, imgLeftElem);
-middleProduct.renderProduct(h1MiddleElem, imgMiddleElem);
-rightProduct.renderProduct(h1RightElem, imgRightElem);
+  while (rightProduct === null || rightProduct === middleProduct || rightProduct === leftProduct) {
+    let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
+    rightProduct = Product.allProducts[rightProductIndex];
+  }
+
+  leftProduct.renderProduct(h1LeftElem, imgLeftElem);
+  middleProduct.renderProduct(h1MiddleElem, imgMiddleElem);
+  rightProduct.renderProduct(h1RightElem, imgRightElem);
 }
 
 Product.prototype.renderProduct = function(h1, img) {
@@ -55,25 +57,38 @@ this.viewedCounter++;
 }
 
 function handleClick(event) {
-let id = event.target.id
-if (id === 'left-img' || id === 'middle-img' || id === 'right-img') {
-  voteCounter++;
-  if (id === 'left-img') {
-    leftProduct.votes++;
-  } else if (id === 'middle-img'){
-    middleProduct.votes++;
+  let id = event.target.id
+  if (id === 'left-img' || id === 'middle-img' || id === 'right-img') {
+    voteCounter++;
+    console.log(voteCounter);
+    if (id === 'left-img') {
+      leftProduct.votes++;
+    } else if (id === 'middle-img'){
+      middleProduct.votes++;
+    } else {
+      rightProduct.votes++;
+    }
+    pickThreeProducts();
   } else {
-    rightProduct.votes++;
+    alert('try again');
   }
-  pickThreeProducts();
-} else {
-  alert('try again');
+  if (voteCounter === 25) {
+    // renderResults();
+    renderButton();
+    // turn off the listener
+    mainElem.removeEventListener('click', handleClick);
+  }
 }
-if (voteCounter === 10) {
+
+function handleButtonClick() {
   renderResults();
-  // turn off the listener
-  mainElem.removeEventListener('click', handleClick);
 }
+
+function renderButton() {
+  let buttonElem = document.createElement('button');
+  buttonElem.textContent = 'View Results';
+  buttonElem.addEventListener('click', handleButtonClick);
+  resultsButtonElem.appendChild(buttonElem);
 }
 
 function renderResults() {
@@ -81,30 +96,30 @@ function renderResults() {
 
   for (let product of Product.allProducts) {
     let liElem = document.createElement('li');
-    liElem.textContent = `${product.name}: ${product.votes}`;
+    liElem.textContent = `${product.productIdentifier} had ${product.votes} votes, and was seen ${product.viewedCounter} times.`;
     resultsUlElem.appendChild(liElem);
   }
 }
 
 mainElem.addEventListener('click', handleClick);
 
-new Product('Banana Slicer', '../img/banana.jpeg');
-new Product('Bathroom Ipad Stand', '../img/bathroom.jpeg');
-new Product('Open Toe Rain Boots', '../img/boots.jpeg');
-new Product('All-in-one Breakfast Maker', '../img/breakfast.jpeg');
-new Product('Meatball Bubblegum', '../img/bubblegum.jpeg');
-new Product('Chair', '../img/chair.jpeg');
-new Product('Cthulu Action Figure', '../img/cthulhu.jpeg');
-new Product('Duck Bill Dog Muzzle', '../img/dog-duck.jpeg');
-new Product('Dragon Meat', '../img/dragon.jpeg');
-new Product('Utensil Pens', '../img/pen.jpeg');
-new Product('Pet Sweeper', '../img/pet-sweep.jpeg');
-new Product('Pizza Scissors', '../img/scissors.jpeg');
-new Product('Shark Sleeping Bag', '../img/shark.jpeg');
-new Product('Baby Onesie Sweeper', '../img/sweep.png');
-new Product('Tauntaun Sleeping Bag', '../img/tauntaun.jpeg');
-new Product('Unicorn Meat', '../img/unicorn.jpeg');
-new Product('Perpetual Watering Can', '../img/water-can.jpeg');
-new Product('Wine Glass With Hole', '../img/wine-glass.jpeg');
+new Product('Banana Slicer', 'banana', '../img/banana.jpeg');
+new Product('Bathroom Ipad Stand','bathroom', '../img/bathroom.jpeg');
+new Product('Open Toe Rain Boots', 'boots' ,'../img/boots.jpeg');
+new Product('All-in-one Breakfast Maker', 'breakfast' ,'../img/breakfast.jpeg');
+new Product('Meatball Bubblegum', 'bubblegum' ,'../img/bubblegum.jpeg');
+new Product('Chair', 'chair' ,'../img/chair.jpeg');
+new Product('Cthulu Action Figure', 'cthulhu', '../img/cthulhu.jpeg');
+new Product('Duck Bill Dog Muzzle', 'dog-duck' ,'../img/dog-duck.jpeg');
+new Product('Dragon Meat', 'dragon' ,'../img/dragon.jpeg');
+new Product('Utensil Pens', 'pen' ,'../img/pen.jpeg');
+new Product('Pet Sweeper', 'pet-sweep' ,'../img/pet-sweep.jpeg');
+new Product('Pizza Scissors', 'scissors' ,'../img/scissors.jpeg');
+new Product('Shark Sleeping Bag', 'shark' ,'../img/shark.jpeg');
+new Product('Baby Onesie Sweeper', 'sweep' ,'../img/sweep.png');
+new Product('Tauntaun Sleeping Bag', 'tauntaun' ,'../img/tauntaun.jpeg');
+new Product('Unicorn Meat', 'unicorn','../img/unicorn.jpeg');
+new Product('Perpetual Watering Can', 'water-can','../img/water-can.jpeg');
+new Product('Wine Glass With Hole', 'wine-glass','../img/wine-glass.jpeg');
 
 pickThreeProducts();
