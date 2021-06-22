@@ -25,22 +25,38 @@ this.votes = 0;
 Product.allProducts.push(this);
 }
 
+
 function pickThreeProducts() {
+  let previousLeft = leftProduct;
+  let previousMiddle = middleProduct;
+  let previousRight = rightProduct;
+  
+  let usedProductsArray = [previousLeft, previousMiddle, previousRight];
+
   let leftProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   leftProduct = Product.allProducts[leftProductIndex];
+
+  while (usedProductsArray.includes(leftProduct)) {
+    let leftProductIndex = Math.floor((Math.random() * Product.allProducts.length));
+    leftProduct = Product.allProducts[leftProductIndex];
+  }
+
+  usedProductsArray.push(leftProduct);
 
   let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   middleProduct = Product.allProducts[middleProductIndex];
 
-  while (middleProduct === null || middleProduct === leftProduct) {
+  while (usedProductsArray.includes(middleProduct)) {
     let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
     middleProduct = Product.allProducts[middleProductIndex];
   }
 
+  usedProductsArray.push(middleProduct);
+
   let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   rightProduct = Product.allProducts[rightProductIndex];
 
-  while (rightProduct === null || rightProduct === middleProduct || rightProduct === leftProduct) {
+  while (usedProductsArray.includes(rightProduct)) {
     let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
     rightProduct = Product.allProducts[rightProductIndex];
   }
@@ -60,7 +76,7 @@ function handleClick(event) {
   let id = event.target.id
   if (id === 'left-img' || id === 'middle-img' || id === 'right-img') {
     voteCounter++;
-    console.log(voteCounter);
+    // console.log(voteCounter);
     if (id === 'left-img') {
       leftProduct.votes++;
     } else if (id === 'middle-img'){
@@ -73,7 +89,6 @@ function handleClick(event) {
     alert('try again');
   }
   if (voteCounter === 25) {
-    // renderResults();
     renderButton();
     // turn off the listener
     mainElem.removeEventListener('click', handleClick);
@@ -82,6 +97,7 @@ function handleClick(event) {
 
 function handleButtonClick() {
   renderResults();
+  addProductChart();
 }
 
 function renderButton() {
@@ -99,6 +115,58 @@ function renderResults() {
     liElem.textContent = `${product.productIdentifier} had ${product.votes} votes, and was seen ${product.viewedCounter} times.`;
     resultsUlElem.appendChild(liElem);
   }
+}
+
+function addProductChart() {
+  const productNamesArray = [];
+  const productVotesArray = [];
+  
+  for (let product of Product.allProducts) {
+    productNamesArray.push(product.name);
+    productVotesArray.push(product.votes);
+  }
+
+  const ctx = document.getElementById('goatChart').getContext('2d');
+
+    const productChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: productNamesArray,
+          datasets: [{
+              label: '# of Votes',
+              data: productVotesArray,
+              backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  // 'rgba(255, 99, 132, 0.2)',
+                  // 'rgba(54, 162, 235, 0.2)',
+                  // 'rgba(255, 99, 132, 0.2)',
+                  // 'rgba(54, 162, 235, 0.2)',
+                  // 'rgba(255, 99, 132, 0.2)',
+                  // 'rgba(54, 162, 235, 0.2)'
+                  
+              ],
+              borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  // 'rgba(255, 99, 132, 1)',
+                  // 'rgba(54, 162, 235, 1)',
+                  // 'rgba(255, 99, 132, 1)',
+                  // 'rgba(54, 162, 235, 1)',
+                  // 'rgba(255, 99, 132, 1)',
+                  // 'rgba(54, 162, 235, 1)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+    });
 }
 
 mainElem.addEventListener('click', handleClick);
