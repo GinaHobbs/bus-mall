@@ -25,23 +25,38 @@ this.votes = 0;
 Product.allProducts.push(this);
 }
 
+
 function pickThreeProducts() {
+  let previousLeft = leftProduct;
+  let previousMiddle = middleProduct;
+  let previousRight = rightProduct;
+  
+  let usedProductsArray = [previousLeft, previousMiddle, previousRight];
+
   let leftProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   leftProduct = Product.allProducts[leftProductIndex];
+
+  while (usedProductsArray.includes(leftProduct)) {
+    let leftProductIndex = Math.floor((Math.random() * Product.allProducts.length));
+    leftProduct = Product.allProducts[leftProductIndex];
+  }
+
+  usedProductsArray.push(leftProduct);
 
   let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   middleProduct = Product.allProducts[middleProductIndex];
 
-  while (middleProduct === null || middleProduct === leftProduct) {
-    console.log('here');
+  while (usedProductsArray.includes(middleProduct)) {
     let middleProductIndex = Math.floor((Math.random() * Product.allProducts.length));
     middleProduct = Product.allProducts[middleProductIndex];
   }
 
+  usedProductsArray.push(middleProduct);
+
   let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
   rightProduct = Product.allProducts[rightProductIndex];
 
-  while (rightProduct === null || rightProduct === middleProduct || rightProduct === leftProduct) {
+  while (usedProductsArray.includes(rightProduct)) {
     let rightProductIndex = Math.floor((Math.random() * Product.allProducts.length));
     rightProduct = Product.allProducts[rightProductIndex];
   }
@@ -73,7 +88,7 @@ function handleClick(event) {
   } else {
     alert('try again');
   }
-  if (voteCounter === 25) {
+  if (voteCounter === 5) {
     // renderResults();
     renderButton();
     // turn off the listener
