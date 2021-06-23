@@ -11,18 +11,19 @@ let imgRightElem = document.getElementById('right-img')
 let resultsUlElem = document.getElementById('results');
 let resultsButtonElem = document.getElementById('results-button')
 let voteCounter = 0;
+let rounds = 5;
 let leftProduct = null;
 let middleProduct = null;
 let rightProduct = null;
 
 function Product(name, identifier, image) {
-this.name = name;
-this.productIdentifier = identifier;
-this.image = image;
-this.viewedCounter = 0;
-this.votes = 0;
+  this.name = name;
+  this.productIdentifier = identifier;
+  this.image = image;
+  this.viewedCounter = 0;
+  this.votes = 0;
 
-Product.allProducts.push(this);
+  Product.allProducts.push(this);
 }
 
 
@@ -69,14 +70,16 @@ function pickThreeProducts() {
 Product.prototype.renderProduct = function(h1, img) {
 h1.textContent = this.name;
 img.src = this.image;
-this.viewedCounter++;
+// Ensures final images shown after voting do not count toward viewedCounter
+  if (voteCounter < rounds) {
+    this.viewedCounter++;
+  }
 }
 
 function handleClick(event) {
   let id = event.target.id
   if (id === 'left-img' || id === 'middle-img' || id === 'right-img') {
     voteCounter++;
-    // console.log(voteCounter);
     if (id === 'left-img') {
       leftProduct.votes++;
     } else if (id === 'middle-img'){
@@ -88,14 +91,14 @@ function handleClick(event) {
   } else {
     alert('try again');
   }
-  if (voteCounter === 25) {
+  if (voteCounter === rounds) {
     renderButton();
-    // turn off the listener
     mainElem.removeEventListener('click', handleClick);
   }
 }
 
 function handleButtonClick() {
+  storeProducts();
   renderResults();
   addProductChart();
 }
@@ -137,24 +140,11 @@ function addProductChart() {
               data: productVotesArray,
               backgroundColor: [
                   'rgba(255, 99, 132, 0.2)',
-                  'rgba(54, 162, 235, 0.2)',
-                  // 'rgba(255, 99, 132, 0.2)',
-                  // 'rgba(54, 162, 235, 0.2)',
-                  // 'rgba(255, 99, 132, 0.2)',
-                  // 'rgba(54, 162, 235, 0.2)',
-                  // 'rgba(255, 99, 132, 0.2)',
-                  // 'rgba(54, 162, 235, 0.2)'
-                  
+                  'rgba(54, 162, 235, 0.2)',    
               ],
               borderColor: [
                   'rgba(255, 99, 132, 1)',
                   'rgba(54, 162, 235, 1)',
-                  // 'rgba(255, 99, 132, 1)',
-                  // 'rgba(54, 162, 235, 1)',
-                  // 'rgba(255, 99, 132, 1)',
-                  // 'rgba(54, 162, 235, 1)',
-                  // 'rgba(255, 99, 132, 1)',
-                  // 'rgba(54, 162, 235, 1)'
               ],
               borderWidth: 1
           }]
@@ -167,6 +157,40 @@ function addProductChart() {
           }
       }
     });
+}
+
+function storeProducts() {
+  let stringifiedProducts = JSON.stringify(Product.allProducts);
+  localStorage.setItem('products', stringifiedProducts);
+}
+
+function getProducts() {
+  // check do I have drinks in storage (orders)
+  let potentialProducts = localStorage.getItem('products');
+  // if you don't have anything you will get null as value
+  if (potentialProducts) {
+    // turn it back from a string to an array of POJOs
+    let parsedProducts = JSON.parse(potentialProducts);
+    // run it back through the constructor function - REINSTANTIATE
+    Product.allProducts = [];
+    for (let product of parsedProducts) {
+      let name = product.name;
+      let identifier = product.productIdentifier;
+      let image = product.image;
+      let viewedCounter = product.viewedCounter;
+      let votes = product.votes;
+      
+      // Create a new product array using the data we've stored in our local storage
+      let newProduct = new Product(name, identifier, image);
+      // Update the product viewedCounter and votes since it's not done on re-instantiation
+      newProduct.updateProducts(viewedCounter, votes);
+    }
+  }
+}
+
+Product.prototype.updateProducts = function(viewedCounter, votes) {
+  this.viewedCounter = viewedCounter;
+  this.votes = votes;
 }
 
 mainElem.addEventListener('click', handleClick);
@@ -191,3 +215,4 @@ new Product('Perpetual Watering Can', 'water-can','../img/water-can.jpeg');
 new Product('Wine Glass With Hole', 'wine-glass','../img/wine-glass.jpeg');
 
 pickThreeProducts();
+getProducts();
